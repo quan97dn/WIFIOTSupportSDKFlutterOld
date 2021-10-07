@@ -14,7 +14,7 @@ enum WIFI_AP_STATE {
 
 enum NetworkSecurity { WPA, WEP, NONE }
 
-const MethodChannel _channel = const MethodChannel('wifi_iot');
+const MethodChannel _channel = const MethodChannel('wifi_iot_flutter_sdk_old');
 const EventChannel _eventChannel =
     const EventChannel('plugins.wififlutter.io/wifi_scan');
 

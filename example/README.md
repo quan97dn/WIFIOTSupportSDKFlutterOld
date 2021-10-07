@@ -1,6 +1,6 @@
-# wifi_iot_example
+# wifi_iot_flutter_sdk_old_example
 
-Demonstrates how to use the wifi_iot plugin.
+Demonstrates how to use the wifi_iot_flutter_sdk_old plugin.
 
 ## Getting Started
 

@@ -1,5 +1,5 @@
-name: wifi_iot_example
-description: Demonstrates how to use the wifi_iot plugin.
+name: wifi_iot_flutter_sdk_old_example
+description: Demonstrates how to use the wifi_iot_flutter_sdk_old plugin.
 
 environment:
   sdk: '>=2.7.0 <3.0.0'

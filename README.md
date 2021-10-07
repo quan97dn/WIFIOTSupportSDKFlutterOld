@@ -1,12 +1,12 @@
 <img src="https://raw.githubusercontent.com/alternadom/WiFiFlutter/master/logo/logo%2Bname_color.png" alt="WiFiFlutter" width="255" height="160" />
 
 <p>
-<a href="https://pub.dev/packages/wifi_iot"><img src="https://img.shields.io/pub/v/wifi_iot?logo=dart" alt="pub.dev"></a><!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+<a href="https://pub.dev/packages/wifi_iot_flutter_sdk_old"><img src="https://img.shields.io/pub/v/wifi_iot_flutter_sdk_old?logo=dart" alt="pub.dev"></a><!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 <a href="#contributors-"><img src="https://img.shields.io/badge/all_contributors-45-orange.svg" alt="All Contributors" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
-<a href="https://pub.dev/packages/wifi_iot/score"><img src="https://badges.bar/wifi_iot/pub%20points" alt="pub points"></a>
-<a href="https://pub.dev/packages/wifi_iot/score"><img src="https://badges.bar/wifi_iot/popularity" alt="popularity"></a>
-<a href="https://pub.dev/packages/wifi_iot/score"><img src="https://badges.bar/wifi_iot/likes" alt="likes"></a>
+<a href="https://pub.dev/packages/wifi_iot_flutter_sdk_old/score"><img src="https://badges.bar/wifi_iot_flutter_sdk_old/pub%20points" alt="pub points"></a>
+<a href="https://pub.dev/packages/wifi_iot_flutter_sdk_old/score"><img src="https://badges.bar/wifi_iot_flutter_sdk_old/popularity" alt="popularity"></a>
+<a href="https://pub.dev/packages/wifi_iot_flutter_sdk_old/score"><img src="https://badges.bar/wifi_iot_flutter_sdk_old/likes" alt="likes"></a>
 <a href="https://github.com/alternadom/WiFiFlutter/actions/workflows/analysis.yml"><img src="https://github.com/alternadom/WiFiFlutter/actions/workflows/analysis.yml/badge.svg" alt="analysis"></a>
 <a href="https://github.com/alternadom/WiFiFlutter/issues"><img src="https://img.shields.io/github/issues/alternadom/WiFiFlutter?logo=github" alt="GitHub issues"></a>
 <a href="https://github.com/alternadom/WiFiFlutter/stargazers"><img src="https://img.shields.io/github/stars/alternadom/WiFiFlutter?logo=github" alt="GitHub stars"></a>
@@ -20,50 +20,54 @@ Plugin Flutter which can handle WiFi connections (AP, STA)
 Becareful, some commands as no effect on iOS because Apple don't let us to do whatever we want...
 
 ## WiFi connections
-|                      Description                      |      Android       |         iOS          |
-| :---------------------------------------------------- | :----------------: | :------------------: |
-| Enabling / Disabling WiFi module                      | :warning:(3a) |  :x:  |
-| Getting WiFi status                                   | :white_check_mark: |  :x:  |
-| Scanning for networks, with "already-associated" flag | :white_check_mark: |  :x:  |
-| Connecting / Disconnecting on a network in WPA / WEP  | :white_check_mark:(3b) |  :white_check_mark:(1)  |
-| Registering / Unregistering a WiFi network            | :white_check_mark:(3c) |  :warning:(2)  |
-| Getting informations like :                           | :white_check_mark: |  :white_check_mark:  |
-| - SSID                                                | :white_check_mark: |  :white_check_mark:  |
-| - BSSID                                               | :white_check_mark: |  :white_check_mark:  |
-| - Current signal strength                             | :white_check_mark: |  :x:  |
-| - Frequency                                           | :white_check_mark: |  :x:  |
-| - IP                                                  | :white_check_mark: |  :white_check_mark:  |
+
+| Description                                           |        Android         |          iOS          |
+| :---------------------------------------------------- | :--------------------: | :-------------------: |
+| Enabling / Disabling WiFi module                      |     :warning:(3a)      |          :x:          |
+| Getting WiFi status                                   |   :white_check_mark:   |          :x:          |
+| Scanning for networks, with "already-associated" flag |   :white_check_mark:   |          :x:          |
+| Connecting / Disconnecting on a network in WPA / WEP  | :white_check_mark:(3b) | :white_check_mark:(1) |
+| Registering / Unregistering a WiFi network            | :white_check_mark:(3c) |     :warning:(2)      |
+| Getting informations like :                           |   :white_check_mark:   |  :white_check_mark:   |
+| - SSID                                                |   :white_check_mark:   |  :white_check_mark:   |
+| - BSSID                                               |   :white_check_mark:   |  :white_check_mark:   |
+| - Current signal strength                             |   :white_check_mark:   |          :x:          |
+| - Frequency                                           |   :white_check_mark:   |          :x:          |
+| - IP                                                  |   :white_check_mark:   |  :white_check_mark:   |
 
 :white_check_mark:(1) : On iOS, you can only disconnect from a network which has been added by your app. In order to disconnect from a system network, you have to connect to an other!
 
 :warning:(2) : On iOS, you can forget a WiFi network by connecting to it with the joinOnce flag to true!
 
 :warning:(3): Wifi API changes in Android SDK >= 29, restricts certain behaviour:
-  * a. Enable/Disable Wifi Module is deprecated and will always fail [[docs](https://developer.android.com/reference/android/net/wifi/WifiManager#setWifiEnabled(boolean))]. If you  want to open "Wifi Setting" in that case then, set the `shouldOpenSettings: true` when calling `setEnabled`.
-  * b. For Connecting to Wifi, WEP security is deprecated and will always fail, also the network will be disconnected when the app is closed (if permanent network is required(Check :warning:(3c)), use "Register Network" feature) [[docs](https://developer.android.com/guide/topics/connectivity/wifi-bootstrap))]. By default the connection would not have internet access, to connect to network with internet user `withInternet` which is a different API underneath (this API will not disconnect to network after app closes) [[docs](https://developer.android.com/guide/topics/connectivity/wifi-suggest)].
-  * c. Registering Wifi Network, will require user approval - and the network saved would not be controlled by the app (for deletion, updation, etc) [[docs](https://developer.android.com/guide/topics/connectivity/wifi-save-network-passpoint-config)];
+
+- a. Enable/Disable Wifi Module is deprecated and will always fail [[docs](<https://developer.android.com/reference/android/net/wifi/WifiManager#setWifiEnabled(boolean)>)]. If you want to open "Wifi Setting" in that case then, set the `shouldOpenSettings: true` when calling `setEnabled`.
+- b. For Connecting to Wifi, WEP security is deprecated and will always fail, also the network will be disconnected when the app is closed (if permanent network is required(Check :warning:(3c)), use "Register Network" feature) [[docs](https://developer.android.com/guide/topics/connectivity/wifi-bootstrap))]. By default the connection would not have internet access, to connect to network with internet user `withInternet` which is a different API underneath (this API will not disconnect to network after app closes) [[docs](https://developer.android.com/guide/topics/connectivity/wifi-suggest)].
+- c. Registering Wifi Network, will require user approval - and the network saved would not be controlled by the app (for deletion, updation, etc) [[docs](https://developer.android.com/guide/topics/connectivity/wifi-save-network-passpoint-config)];
 
 Additional Wifi protocols on Android side like - Wifi Direct, Wifi Aware, etc are in active discussion at [#140](https://github.com/alternadom/WiFiFlutter/issues/140). Encourage you to engage if you want this features.
 
 ## Access Point
-|                                       Description                                     |      Android       |         iOS          |
-| :------------------------------------------------------------------------------------ | :----------------: | :------------------: |
-| Getting the status of the Access Point (Disable, disabling, enable, enabling, failed) | :warning:(1b) |  :x:  |
-| Enabling / Disabling Access Point                                                     | :white_check_mark:(1c) |  :x:  |
-| Getting / Setting new credentials (SSID / Password)                                   | :warning:(1b) |  :x:  |
-| Enabling / Disabling the visibility of the SSID Access Point                          | :warning:(1a) |  :x:  |
-| Getting the clients list (IP, BSSID, Device, Reachable)                               | :warning:(1a) |  :x:  |
+
+| Description                                                                           |        Android         | iOS |
+| :------------------------------------------------------------------------------------ | :--------------------: | :-: |
+| Getting the status of the Access Point (Disable, disabling, enable, enabling, failed) |     :warning:(1b)      | :x: |
+| Enabling / Disabling Access Point                                                     | :white_check_mark:(1c) | :x: |
+| Getting / Setting new credentials (SSID / Password)                                   |     :warning:(1b)      | :x: |
+| Enabling / Disabling the visibility of the SSID Access Point                          |     :warning:(1a)      | :x: |
+| Getting the clients list (IP, BSSID, Device, Reachable)                               |     :warning:(1a)      | :x: |
 
 :warning:(1): Wifi API changes in Android SDK 26 and 29, restricts certain behaviour:
-  * a. This has been deprecated and will always fail for >= 26 Android SDK.
-  * b. This has been deprecated and will always fail for >= 26 Android SDK. There is a way to make "get" methods work for >= 29 Android SDK, but is currently not implemented, request these features if you need them at [#134](https://github.com/alternadom/WiFiFlutter/issues/134).
-  * c. Uses [`startLocalOnlyHotspot` API](https://developer.android.com/reference/android/net/wifi/WifiManager#startLocalOnlyHotspot(android.net.wifi.WifiManager.LocalOnlyHotspotCallback,%20android.os.Handler)) to request enabling or disabling WiFi AP for >= 29 Android SDK. This can only be used to communicate between co-located devices connected to the created WiFi Hotspot. Note - 
-    * (i) Enabling and Disabling WiFi AP needs to request location permission.
-    * (ii) The network created by this method will not have Internet access.
-    * (iii) There's no way for the user to set WiFi AP's SSID and Passphrase, they are automatically generated by the OS.
-    * (iv) This is actually a "request" and not a "command", as the `LocalOnlyHotspot` is shared (potentially) across applications and therefore a request to enable/disable may not not necessarily trigger the immediate execution of it. 
 
-For now, there is no way to set the access point on iOS... 
+- a. This has been deprecated and will always fail for >= 26 Android SDK.
+- b. This has been deprecated and will always fail for >= 26 Android SDK. There is a way to make "get" methods work for >= 29 Android SDK, but is currently not implemented, request these features if you need them at [#134](https://github.com/alternadom/WiFiFlutter/issues/134).
+- c. Uses [`startLocalOnlyHotspot` API](<https://developer.android.com/reference/android/net/wifi/WifiManager#startLocalOnlyHotspot(android.net.wifi.WifiManager.LocalOnlyHotspotCallback,%20android.os.Handler)>) to request enabling or disabling WiFi AP for >= 29 Android SDK. This can only be used to communicate between co-located devices connected to the created WiFi Hotspot. Note -
+  - (i) Enabling and Disabling WiFi AP needs to request location permission.
+  - (ii) The network created by this method will not have Internet access.
+  - (iii) There's no way for the user to set WiFi AP's SSID and Passphrase, they are automatically generated by the OS.
+  - (iv) This is actually a "request" and not a "command", as the `LocalOnlyHotspot` is shared (potentially) across applications and therefore a request to enable/disable may not not necessarily trigger the immediate execution of it.
+
+For now, there is no way to set the access point on iOS...
 
 ## Xcode build (iOS >= 8.0)
 

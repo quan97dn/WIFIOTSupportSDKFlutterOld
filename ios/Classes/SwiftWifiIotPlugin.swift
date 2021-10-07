@@ -5,7 +5,7 @@ import NetworkExtension
 
 public class SwiftWifiIotPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "wifi_iot", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(name: "wifi_iot_flutter_sdk_old", binaryMessenger: registrar.messenger())
         let instance = SwiftWifiIotPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }

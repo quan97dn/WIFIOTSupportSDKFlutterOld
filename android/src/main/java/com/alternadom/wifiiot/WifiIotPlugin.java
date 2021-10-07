@@ -120,7 +120,7 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
      * Plugin registration. This is used for registering with v1 Android embedding.
      */
     public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "wifi_iot");
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), "wifi_iot_flutter_sdk_old");
         final EventChannel eventChannel = new EventChannel(registrar.messenger(), "plugins.wififlutter.io/wifi_scan");
         final WifiIotPlugin wifiIotPlugin = new WifiIotPlugin();
         wifiIotPlugin.initWithActivity(registrar.activity());
@@ -141,7 +141,7 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
         // initialize method and event channel and set handlers
-        channel = new MethodChannel(binding.getBinaryMessenger(), "wifi_iot");
+        channel = new MethodChannel(binding.getBinaryMessenger(), "wifi_iot_flutter_sdk_old");
         eventChannel = new EventChannel(binding.getBinaryMessenger(), "plugins.wififlutter.io/wifi_scan");
         channel.setMethodCallHandler(this);
         eventChannel.setStreamHandler(this);
