@@ -52,8 +52,10 @@ import io.flutter.view.FlutterNativeView;
 /**
  * WifiIotPlugin
  */
-public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, EventChannel.StreamHandler, RequestPermissionsResultListener {
-    /// This local reference serves to register the plugin with the Flutter Engine and unregister it
+public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, EventChannel.StreamHandler,
+        RequestPermissionsResultListener {
+    /// This local reference serves to register the plugin with the Flutter Engine
+    /// and unregister it
     /// when the Flutter Engine is detached from the Activity
     private MethodChannel channel;
     private EventChannel eventChannel;
@@ -93,8 +95,7 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     // cleanup
     private void cleanup() {
         if (!ssidsToBeRemovedOnExit.isEmpty()) {
-            List<WifiConfiguration> wifiConfigList =
-                    moWiFi.getConfiguredNetworks();
+            List<WifiConfiguration> wifiConfigList = moWiFi.getConfiguredNetworks();
             for (String ssid : ssidsToBeRemovedOnExit) {
                 for (WifiConfiguration wifiConfig : wifiConfigList) {
                     if (wifiConfig.SSID.equals(ssid)) {
@@ -115,12 +116,11 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         moWiFiAPManager = null;
     }
 
-
     /**
      * Plugin registration. This is used for registering with v1 Android embedding.
      */
     public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "wifi_iot_flutter_sdk_old");
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), "wifi_iot");
         final EventChannel eventChannel = new EventChannel(registrar.messenger(), "plugins.wififlutter.io/wifi_scan");
         final WifiIotPlugin wifiIotPlugin = new WifiIotPlugin();
         wifiIotPlugin.initWithActivity(registrar.activity());
@@ -141,7 +141,7 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
         // initialize method and event channel and set handlers
-        channel = new MethodChannel(binding.getBinaryMessenger(), "wifi_iot_flutter_sdk_old");
+        channel = new MethodChannel(binding.getBinaryMessenger(), "wifi_iot");
         eventChannel = new EventChannel(binding.getBinaryMessenger(), "plugins.wififlutter.io/wifi_scan");
         channel.setMethodCallHandler(this);
         eventChannel.setStreamHandler(this);
@@ -187,22 +187,23 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     @Override
-    public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
-                                              int[] grantResults) {
-        final boolean wasPermissionGranted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        final boolean wasPermissionGranted = grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_LOAD_WIFI_LIST:
                 if (wasPermissionGranted) {
                     _loadWifiList(permissionRequestResultCallback);
-                }  else {
-                    permissionRequestResultCallback.error("WifiIotPlugin.Permission", "Fine location permission denied", null);
+                } else {
+                    permissionRequestResultCallback.error("WifiIotPlugin.Permission", "Fine location permission denied",
+                            null);
                 }
                 requestingPermission = false;
                 return true;
 
             case PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_ON_LISTEN:
                 if (wasPermissionGranted) {
-                    final EventChannel.EventSink eventSink = (EventChannel.EventSink)permissionRequestCookie.get(0);
+                    final EventChannel.EventSink eventSink = (EventChannel.EventSink) permissionRequestCookie.get(0);
                     _onListen(eventSink);
                 }
                 requestingPermission = false;
@@ -210,10 +211,11 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
 
             case PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_FIND_AND_CONNECT:
                 if (wasPermissionGranted) {
-                    final MethodCall poCall = (MethodCall)permissionRequestCookie.get(0);
+                    final MethodCall poCall = (MethodCall) permissionRequestCookie.get(0);
                     _findAndConnect(poCall, permissionRequestResultCallback);
-                }  else {
-                    permissionRequestResultCallback.error("WifiIotPlugin.Permission", "Fine location permission denied", null);
+                } else {
+                    permissionRequestResultCallback.error("WifiIotPlugin.Permission", "Fine location permission denied",
+                            null);
                 }
                 requestingPermission = false;
                 return true;
@@ -221,8 +223,9 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
             case PERMISSIONS_REQUEST_CODE_ACCESS_NETWORK_STATE_IS_CONNECTED:
                 if (wasPermissionGranted) {
                     _isConnected(permissionRequestResultCallback);
-                }  else {
-                    permissionRequestResultCallback.error("WifiIotPlugin.Permission", "Network state permission denied", null);
+                } else {
+                    permissionRequestResultCallback.error("WifiIotPlugin.Permission", "Network state permission denied",
+                            null);
                 }
                 requestingPermission = false;
                 return true;
@@ -280,13 +283,15 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
                     removeWifiNetwork(poCall, poResult);
                 else
-                    poResult.error("Error", "removeWifiNetwork not supported for Android SDK " + Build.VERSION.SDK_INT, null);
+                    poResult.error("Error", "removeWifiNetwork not supported for Android SDK " + Build.VERSION.SDK_INT,
+                            null);
                 break;
             case "isRegisteredWifiNetwork":
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
                     isRegisteredWifiNetwork(poCall, poResult);
                 else
-                    poResult.error("Error", "isRegisteredWifiNetwork not supported for Android SDK " + Build.VERSION.SDK_INT, null);
+                    poResult.error("Error",
+                            "isRegisteredWifiNetwork not supported for Android SDK " + Build.VERSION.SDK_INT, null);
                 break;
             case "isWiFiAPEnabled":
                 isWiFiAPEnabled(poResult);
@@ -328,11 +333,9 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     /**
-     * The network's SSID. Can either be an ASCII string,
-     * which must be enclosed in double quotation marks
-     * (e.g., {@code "MyNetwork"}), or a string of
-     * hex digits, which are not enclosed in quotes
-     * (e.g., {@code 01a243f405}).
+     * The network's SSID. Can either be an ASCII string, which must be enclosed in
+     * double quotation marks (e.g., {@code "MyNetwork"}), or a string of hex
+     * digits, which are not enclosed in quotes (e.g., {@code 01a243f405}).
      */
     private void getWiFiAPSSID(Result poResult) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -366,8 +369,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     /**
-     * This is a network that does not broadcast its SSID, so an
-     * SSID-specific probe request must be used for scans.
+     * This is a network that does not broadcast its SSID, so an SSID-specific probe
+     * request must be used for scans.
      */
     private void isSSIDHidden(Result poResult) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -380,7 +383,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
 
             poResult.error("Exception [isSSIDHidden]", "Wifi AP not Supported", null);
         } else {
-            poResult.error("Exception [isSSIDHidden]", "Getting SSID visibility is not supported on API level >= 26", null);
+            poResult.error("Exception [isSSIDHidden]", "Getting SSID visibility is not supported on API level >= 26",
+                    null);
         }
     }
 
@@ -396,18 +400,18 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
 
             poResult.success(null);
         } else {
-            poResult.error("Exception [setSSIDHidden]", "Setting SSID visibility is not supported on API level >= 26", null);
+            poResult.error("Exception [setSSIDHidden]", "Setting SSID visibility is not supported on API level >= 26",
+                    null);
         }
     }
 
     /**
      * Pre-shared key for use with WPA-PSK. Either an ASCII string enclosed in
-     * double quotation marks (e.g., {@code "abcdefghij"} for PSK passphrase or
-     * a string of 64 hex digits for raw PSK.
+     * double quotation marks (e.g., {@code "abcdefghij"} for PSK passphrase or a
+     * string of 64 hex digits for raw PSK.
      * <p/>
-     * When the value of this key is read, the actual key is
-     * not returned, just a "*" if the key has a value, or the null
-     * string otherwise.
+     * When the value of this key is read, the actual key is not returned, just a
+     * "*" if the key has a value, or the null string otherwise.
      */
     private void getWiFiAPPreSharedKey(Result poResult) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -420,7 +424,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
 
             poResult.error("Exception", "Wifi AP not Supported", null);
         } else {
-            poResult.error("Exception [getWiFIAPPreSharedKey]", "Getting WiFi AP password is not supported on API level >= 26", null);
+            poResult.error("Exception [getWiFIAPPreSharedKey]",
+                    "Getting WiFi AP password is not supported on API level >= 26", null);
         }
     }
 
@@ -436,16 +441,17 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
 
             poResult.success(null);
         } else {
-            poResult.error("Exception [setWiFiAPPreSharedKey]", "Setting WiFi password is not supported on API level >= 26", null);
+            poResult.error("Exception [setWiFiAPPreSharedKey]",
+                    "Setting WiFi password is not supported on API level >= 26", null);
         }
     }
 
     /**
-     * Gets a list of the clients connected to the Hotspot
-     * *** getClientList :
-     * param onlyReachables   {@code false} if the list should contain unreachable (probably disconnected) clients, {@code true} otherwise
-     * param reachableTimeout Reachable Timout in miliseconds, 300 is default
-     * param finishListener,  Interface called when the scan method finishes
+     * Gets a list of the clients connected to the Hotspot *** getClientList : param
+     * onlyReachables {@code false} if the list should contain unreachable (probably
+     * disconnected) clients, {@code true} otherwise param reachableTimeout
+     * Reachable Timout in miliseconds, 300 is default param finishListener,
+     * Interface called when the scan method finishes
      */
     private void getClientList(MethodCall poCall, final Result poResult) {
         Boolean onlyReachables = false;
@@ -502,9 +508,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     /**
-     * Return whether Wi-Fi AP is enabled or disabled.
-     * *** isWifiApEnabled :
-     * return {@code true} if Wi-Fi AP is enabled
+     * Return whether Wi-Fi AP is enabled or disabled. *** isWifiApEnabled : return
+     * {@code true} if Wi-Fi AP is enabled
      */
     private void isWiFiAPEnabled(Result poResult) {
         try {
@@ -516,14 +521,12 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     /**
-     * Start AccessPoint mode with the specified
-     * configuration. If the radio is already running in
-     * AP mode, update the new configuration
-     * Note that starting in access point mode disables station
-     * mode operation
-     * *** setWifiApEnabled :
-     * param wifiConfig SSID, security and channel details as part of WifiConfiguration
-     * return {@code true} if the operation succeeds, {@code false} otherwise
+     * Start AccessPoint mode with the specified configuration. If the radio is
+     * already running in AP mode, update the new configuration Note that starting
+     * in access point mode disables station mode operation *** setWifiApEnabled :
+     * param wifiConfig SSID, security and channel details as part of
+     * WifiConfiguration return {@code true} if the operation succeeds,
+     * {@code false} otherwise
      */
     private void setWiFiAPEnabled(MethodCall poCall, Result poResult) {
         boolean enabled = poCall.argument("state");
@@ -551,7 +554,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
                     @Override
                     public void onFailed(int reason) {
                         super.onFailed(reason);
-                        Log.d(WifiIotPlugin.class.getSimpleName(), "LocalHotspot failed with code: " + String.valueOf(reason));
+                        Log.d(WifiIotPlugin.class.getSimpleName(),
+                                "LocalHotspot failed with code: " + String.valueOf(reason));
                     }
                 }, new Handler());
             } else {
@@ -567,12 +571,11 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     /**
-     * Show write permission settings page to user
-     * Depending on Android version and application these may be needed
-     * to perform certain WiFi configurations that require WRITE_SETTINGS
-     * which require a double opt-in, not just presence in manifest.
-     * *** showWritePermissionSettings :
-     * param boolean force, if true shows always, if false only if permissions are not already granted
+     * Show write permission settings page to user Depending on Android version and
+     * application these may be needed to perform certain WiFi configurations that
+     * require WRITE_SETTINGS which require a double opt-in, not just presence in
+     * manifest. *** showWritePermissionSettings : param boolean force, if true
+     * shows always, if false only if permissions are not already granted
      */
     private void showWritePermissionSettings(MethodCall poCall, Result poResult) {
         boolean force = poCall.argument("force");
@@ -581,9 +584,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     /**
-     * Gets the Wi-Fi enabled state.
-     * *** getWifiApState :
-     * return {link WIFI_AP_STATE}
+     * Gets the Wi-Fi enabled state. *** getWifiApState : return {link
+     * WIFI_AP_STATE}
      */
     private void getWiFiAPState(Result poResult) {
         poResult.success(moWiFiAPManager.getWifiApState().ordinal());
@@ -591,14 +593,16 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
 
     @Override
     public void onListen(Object o, EventChannel.EventSink eventSink) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && moContext.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && moContext
+                .checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (requestingPermission) {
                 return;
             }
             requestingPermission = true;
             permissionRequestCookie.clear();
             permissionRequestCookie.add(eventSink);
-            moActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_ON_LISTEN);
+            moActivity.requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                    PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_ON_LISTEN);
             // actual call will be handled in [onRequestPermissionsResult]
         } else {
             _onListen(eventSink);
@@ -648,11 +652,11 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
                         wifiObject.put("timestamp", 0);
                     }
                     /// Other fields not added
-                    //wifiObject.put("operatorFriendlyName", result.operatorFriendlyName);
-                    //wifiObject.put("venueName", result.venueName);
-                    //wifiObject.put("centerFreq0", result.centerFreq0);
-                    //wifiObject.put("centerFreq1", result.centerFreq1);
-                    //wifiObject.put("channelWidth", result.channelWidth);
+                    // wifiObject.put("operatorFriendlyName", result.operatorFriendlyName);
+                    // wifiObject.put("venueName", result.venueName);
+                    // wifiObject.put("centerFreq0", result.centerFreq0);
+                    // wifiObject.put("centerFreq1", result.centerFreq1);
+                    // wifiObject.put("channelWidth", result.channelWidth);
 
                     wifiArray.put(wifiObject);
                 }
@@ -664,16 +668,19 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         }
     }
 
-    /// Method to load wifi list into string via Callback. Returns a stringified JSONArray
+    /// Method to load wifi list into string via Callback. Returns a stringified
+    /// JSONArray
     private void loadWifiList(final Result poResult) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && moContext.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && moContext
+                .checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (requestingPermission) {
                 poResult.error("WifiIotPlugin.Permission", "Only one permission can be requested at a time", null);
                 return;
             }
             requestingPermission = true;
             permissionRequestResultCallback = poResult;
-            moActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_LOAD_WIFI_LIST);
+            moActivity.requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                    PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_LOAD_WIFI_LIST);
             // actual call will be handled in [onRequestPermissionsResult]
         } else {
             _loadWifiList(poResult);
@@ -688,7 +695,6 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
             poResult.error("Exception", e.getMessage(), null);
         }
     }
-
 
     /// Method to force wifi usage if the user needs to send requests via wifi
     /// if it does not have internet connection. Useful for IoT applications, when
@@ -799,14 +805,12 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     /**
-     * Registers a wifi network in the device wireless networks
-     * For API >= 30 uses intent to permanently store such network in user configuration
-     * For API <= 29 uses deprecated functions that manipulate directly
-     * *** registerWifiNetwork :
-     * param ssid, SSID to register
-     * param password, passphrase to use
-     * param security, security mode (WPA or null) to use
-     * return {@code true} if the operation succeeds, {@code false} otherwise
+     * Registers a wifi network in the device wireless networks For API >= 30 uses
+     * intent to permanently store such network in user configuration For API <= 29
+     * uses deprecated functions that manipulate directly *** registerWifiNetwork :
+     * param ssid, SSID to register param password, passphrase to use param
+     * security, security mode (WPA or null) to use return {@code true} if the
+     * operation succeeds, {@code false} otherwise
      */
     private void registerWifiNetwork(final MethodCall poCall, final Result poResult) {
         String ssid = poCall.argument("ssid");
@@ -852,12 +856,14 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         }
     }
 
-    /// Send the ssid and password of a Wifi network into this to connect to the network.
-    /// Example:  wifi.findAndConnect(ssid, password);
+    /// Send the ssid and password of a Wifi network into this to connect to the
+    /// network.
+    /// Example: wifi.findAndConnect(ssid, password);
     /// After 10 seconds, a post telling you whether you are connected will pop up.
     /// Callback returns true if ssid is in the range
     private void findAndConnect(final MethodCall poCall, final Result poResult) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && moContext.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && moContext
+                .checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (requestingPermission) {
                 poResult.error("WifiIotPlugin.Permission", "Only one permission can be requested at a time", null);
                 return;
@@ -866,7 +872,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
             permissionRequestResultCallback = poResult;
             permissionRequestCookie.clear();
             permissionRequestCookie.add(poCall);
-            moActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_FIND_AND_CONNECT);
+            moActivity.requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                    PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION_FIND_AND_CONNECT);
             // actual call will be handled in [onRequestPermissionsResult]
         } else {
             _findAndConnect(poCall, poResult);
@@ -898,9 +905,7 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     private static String getSecurityType(ScanResult scanResult) {
         String capabilities = scanResult.capabilities;
 
-        if (capabilities.contains("WPA") ||
-                capabilities.contains("WPA2") ||
-                capabilities.contains("WPA/WPA2 PSK")) {
+        if (capabilities.contains("WPA") || capabilities.contains("WPA2") || capabilities.contains("WPA/WPA2 PSK")) {
             return "WPA";
         } else if (capabilities.contains("WEP")) {
             return "WEP";
@@ -914,14 +919,16 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             isConnectedDeprecated(poResult);
         } else {
-            if (moContext.checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            if (moContext.checkSelfPermission(
+                    Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
                 if (requestingPermission) {
                     poResult.error("WifiIotPlugin.Permission", "Only one permission can be requested at a time", null);
                     return;
                 }
                 requestingPermission = true;
                 permissionRequestResultCallback = poResult;
-                moActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_NETWORK_STATE}, PERMISSIONS_REQUEST_CODE_ACCESS_NETWORK_STATE_IS_CONNECTED);
+                moActivity.requestPermissions(new String[] { Manifest.permission.ACCESS_NETWORK_STATE },
+                        PERMISSIONS_REQUEST_CODE_ACCESS_NETWORK_STATE_IS_CONNECTED);
                 // actual call will be handled in [onRequestPermissionsResult]
             } else {
                 _isConnected(poResult);
@@ -930,16 +937,17 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     private void _isConnected(Result poResult) {
-        ConnectivityManager connManager = (ConnectivityManager) moContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connManager = (ConnectivityManager) moContext
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean result = false;
         if (connManager != null) {
             // `connManager.getActiveNetwork` only return if the network has internet
             // therefore using `connManager.getAllNetworks()` to check all networks
             for (final Network network : connManager.getAllNetworks()) {
-                final NetworkCapabilities capabilities = network != null
-                        ? connManager.getNetworkCapabilities(network)
+                final NetworkCapabilities capabilities = network != null ? connManager.getNetworkCapabilities(network)
                         : null;
-                final boolean isConnected = capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+                final boolean isConnected = capabilities != null
+                        && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
                 if (isConnected) {
                     result = true;
                     break;
@@ -952,9 +960,9 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
 
     @SuppressWarnings("deprecation")
     private void isConnectedDeprecated(Result poResult) {
-        ConnectivityManager connManager = (ConnectivityManager) moContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        android.net.NetworkInfo mWifi = connManager != null
-                ? connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+        ConnectivityManager connManager = (ConnectivityManager) moContext
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        android.net.NetworkInfo mWifi = connManager != null ? connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
                 : null;
 
         poResult.success(mWifi != null && mWifi.isConnected());
@@ -963,11 +971,12 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     /// Disconnect current Wifi.
     private void disconnect(Result poResult) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            //noinspection deprecation
+            // noinspection deprecation
             moWiFi.disconnect();
         } else {
             if (networkCallback != null) {
-                final ConnectivityManager connectivityManager = (ConnectivityManager) moContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                final ConnectivityManager connectivityManager = (ConnectivityManager) moContext
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
                 connectivityManager.unregisterNetworkCallback(networkCallback);
             } else {
                 Log.e(WifiIotPlugin.class.getSimpleName(), "Can't disconnect to WiFi, networkCallback is null.");
@@ -993,7 +1002,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         poResult.success(ssid);
     }
 
-    /// This method will return the basic service set identifier (BSSID) of the current access point
+    /// This method will return the basic service set identifier (BSSID) of the
+    /// current access point
     private void getBSSID(Result poResult) {
         WifiInfo info = moWiFi.getConnectionInfo();
 
@@ -1029,7 +1039,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         poResult.success(stringip);
     }
 
-    /// This method will remove the WiFi network as per the passed SSID from the device list
+    /// This method will remove the WiFi network as per the passed SSID from the
+    /// device list
     private void removeWifiNetwork(MethodCall poCall, Result poResult) {
         String prefix_ssid = poCall.argument("ssid");
         if (prefix_ssid.equals("")) {
@@ -1038,7 +1049,7 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
 
         List<android.net.wifi.WifiConfiguration> mWifiConfigList = moWiFi.getConfiguredNetworks();
         for (android.net.wifi.WifiConfiguration wifiConfig : mWifiConfigList) {
-            String comparableSSID = ('"' + prefix_ssid); //Add quotes because wifiConfig.SSID has them
+            String comparableSSID = ('"' + prefix_ssid); // Add quotes because wifiConfig.SSID has them
             if (wifiConfig.SSID.startsWith(comparableSSID)) {
                 moWiFi.removeNetwork(wifiConfig.networkId);
                 moWiFi.saveConfiguration();
@@ -1049,13 +1060,14 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         poResult.success(false);
     }
 
-    /// This method will remove the WiFi network as per the passed SSID from the device list
+    /// This method will remove the WiFi network as per the passed SSID from the
+    /// device list
     private void isRegisteredWifiNetwork(MethodCall poCall, Result poResult) {
 
         String ssid = poCall.argument("ssid");
 
         List<android.net.wifi.WifiConfiguration> mWifiConfigList = moWiFi.getConfiguredNetworks();
-        String comparableSSID = ('"' + ssid + '"'); //Add quotes because wifiConfig.SSID has them
+        String comparableSSID = ('"' + ssid + '"'); // Add quotes because wifiConfig.SSID has them
         if (mWifiConfigList != null) {
             for (android.net.wifi.WifiConfiguration wifiConfig : mWifiConfigList) {
                 if (wifiConfig.SSID.equals(comparableSSID)) {
@@ -1085,9 +1097,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     /// Method to connect to WIFI Network
-    private void connectTo(final Result poResult, final String ssid, final String password,
-                           final String security, final Boolean joinOnce, final Boolean withInternet,
-                           final Boolean isHidden) {
+    private void connectTo(final Result poResult, final String ssid, final String password, final String security,
+            final Boolean joinOnce, final Boolean withInternet, final Boolean isHidden) {
         final Handler handler = new Handler(Looper.getMainLooper());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             final boolean connected = connectToDeprecated(ssid, password, security, joinOnce, isHidden);
@@ -1125,7 +1136,7 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
                     moWiFi.removeNetworkSuggestions(networkSuggestions);
                 }
 
-                //builder.setIsAppInteractionRequired(true);
+                // builder.setIsAppInteractionRequired(true);
                 final WifiNetworkSuggestion suggestion = builder.build();
 
                 networkSuggestions = new ArrayList<>();
@@ -1157,11 +1168,10 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
                 final NetworkRequest networkRequest = new NetworkRequest.Builder()
                         .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                         .removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                        .setNetworkSpecifier(builder.build())
-                        .build();
+                        .setNetworkSpecifier(builder.build()).build();
 
-                final ConnectivityManager connectivityManager = (ConnectivityManager) moContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
+                final ConnectivityManager connectivityManager = (ConnectivityManager) moContext
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
 
                 if (networkCallback != null)
                     connectivityManager.unregisterNetworkCallback(networkCallback);
@@ -1218,13 +1228,16 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         return updateNetwork;
     }
 
-    private android.net.wifi.WifiConfiguration generateConfiguration(String ssid, String password, String security, Boolean isHidden) {
+    private android.net.wifi.WifiConfiguration generateConfiguration(String ssid, String password, String security,
+            Boolean isHidden) {
         android.net.wifi.WifiConfiguration conf = new android.net.wifi.WifiConfiguration();
         conf.SSID = "\"" + ssid + "\"";
         conf.hiddenSSID = isHidden != null ? isHidden : false;
 
-        if (security != null) security = security.toUpperCase();
-        else security = "NONE";
+        if (security != null)
+            security = security.toUpperCase();
+        else
+            security = "NONE";
 
         if (security.toUpperCase().equals("WPA")) {
 
@@ -1261,8 +1274,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     }
 
     @SuppressWarnings("deprecation")
-    private Boolean connectToDeprecated(String ssid, String password, String security,
-                                        Boolean joinOnce, Boolean isHidden) {
+    private Boolean connectToDeprecated(String ssid, String password, String security, Boolean joinOnce,
+            Boolean isHidden) {
         /// Make new configuration
         android.net.wifi.WifiConfiguration conf = generateConfiguration(ssid, password, security, isHidden);
 
@@ -1282,7 +1295,8 @@ public class WifiIotPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
         }
 
         boolean enabled = moWiFi.enableNetwork(updateNetwork, true);
-        if (!enabled) return false;
+        if (!enabled)
+            return false;
 
         boolean connected = false;
         for (int i = 0; i < 30; i++) {
