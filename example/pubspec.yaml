@@ -16,7 +16,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  wifi_iot:
+  wifi_iot_flutter_sdk_old:
     path: ../
 
 # For information on the generic Dart part of this file, see the
