@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wifi_iot/wifi_iot.dart';
+import 'package:wifi_iot_flutter_sdk_old/wifi_iot.dart';
 import 'dart:io' show Platform;
 
 const String STA_DEFAULT_SSID = "STA_SSID";
